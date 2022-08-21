@@ -1,30 +1,22 @@
 (ns ray-tracer-challenge-clj.canvas
-  (:require [clojure.math :as math]
-            [clojure.string :as str]
-            [ray-tracer-challenge-clj.color :refer [color hadamard-product pixels->str]]
-            [ray-tracer-challenge-clj.string-formatting
-             :refer
-             [format-body multi-line-string]]))
+  (:require
+   [ray-tracer-challenge-clj.color :refer [color pixels->str]]
+   [ray-tracer-challenge-clj.matrix
+    :refer [get-in-matrix matrix update-matrix]]
+   [ray-tracer-challenge-clj.string-formatting
+    :refer
+    [format-body multi-line-string]]))
 
 (defn canvas ([width height pixel]
-              (let [rows (into [] (for [i (range height)]
-                                    (into [] (for [j (range width)]
-                                               pixel))))]
-                {:width  width
-                 :height height
-                 :rows   rows}))
+              (matrix width height pixel))
   ([width height]
    (canvas width height (color 0 0 0))))
 
 (defn pixel-at [canvas x y]
-  (get-in canvas [:rows y x]))
+  (get-in-matrix canvas y x))
 
 (defn write-pixel [canvas x y pixel]
-  {:pre [(< x (:width canvas))
-         (< y (:height canvas))
-         (> (:width canvas) 0)
-         (> (:height canvas) 0)]}
-  (assoc canvas :rows (assoc-in (canvas :rows) [y x] pixel)))
+  (update-matrix canvas y x pixel))
 
 (defn ppm-header [canvas]
   (multi-line-string "P3"
