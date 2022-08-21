@@ -21,7 +21,9 @@
 
 (defn write-pixel [canvas x y pixel]
   {:pre [(< x (:width canvas))
-         (< y (:height canvas))]}
+         (< y (:height canvas))
+         (> (:width canvas) 0)
+         (> (:height canvas) 0)]}
   (assoc canvas :rows (assoc-in (canvas :rows) [y x] pixel)))
 
 (defn ppm-header [canvas]
