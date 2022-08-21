@@ -2,6 +2,8 @@
   (:require  [clojure.test :refer :all]
              [ray-tracer-challenge-clj.tuple :refer :all]
              [ray-tracer-challenge-clj.string-formatting :refer :all]
+             [ray-tracer-challenge-clj.color :refer :all]
+             [ray-tracer-challenge-clj.canvas :refer :all]
              [clojure.string :as str]))
 
 (defn apply-to-n-lines [f n string]

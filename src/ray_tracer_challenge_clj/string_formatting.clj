@@ -18,9 +18,9 @@
 
 (defn format-line [length words]
   (reduce
-     (partial merge-word length)
-     [(first words)]
-     (rest words)))
+   (partial merge-word length)
+   [(first words)]
+   (rest words)))
 
 (defn format-body [length string]
   (->> string

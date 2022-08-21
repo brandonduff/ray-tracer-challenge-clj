@@ -68,53 +68,8 @@
    (- (* (:z t1) (:x t2)) (* (:x t1) (:z t2)))
    (- (* (:x t1) (:y t2)) (* (:y t1) (:x t2)))))
 
-(defn color [r g b]
-  {:red r :green g :blue b})
-
-(defn hadamard-product [c1 c2]
-  (apply color (map * (vals c1) (vals c2))))
-
-(defn canvas ([width height pixel]
-              (let [rows (into [] (for [i (range height)]
-                                    (into [] (for [j (range width)]
-                                               pixel))))]
-                {:width  width
-                 :height height
-                 :rows   rows}))
-  ([width height]
-   (canvas width height (color 0 0 0))))
-
-(defn write-pixel [canvas x y pixel]
-  (assoc canvas :rows (assoc-in (canvas :rows) [y x] pixel)))
-
 (defn clamp [lower upper n]
   (cond
     (< n lower) lower
     (> n upper) upper
     :else n))
-
-(defn color->str [color]
-  (->> (vals (multiply-tuple color 255))
-       (map math/round)
-       (map (partial clamp 0 255))
-       (str/join " ")))
-
-(defn pixel-at [canvas x y]
-  (get-in canvas [:rows y x]))
-
-(defn pixels->str [line]
-  (str/join " " (map color->str line)))
-
-(defn ppm-header [canvas]
-  (multi-line-string "P3"
-                     (str (:width canvas) " " (:height canvas))
-                     "255"))
-
-(defn canvas->ppm [canvas]
-  (let [header (ppm-header canvas)
-        body (->> canvas
-                  :rows
-                  (map pixels->str)
-                  (apply multi-line-string)
-                  (format-body 70))]
-    (str (multi-line-string header body) "\n")))
