@@ -211,14 +211,25 @@
       (is (= (multi-line-string "123 456 78" "9 10")
              (subject "123 456 78 9 10"))))))
 
+; putting it all together scratchpad
+
+(def c (canvas 100 100))
+
 (defn tick [env proj]
   (let [position (add-tuples (:position proj) (:velocity proj))
-        velocity (add-tuples (:velocity proj) (:gravity env) (:wind env))]
+        c (:canvas proj)
+        velocity (add-tuples (:velocity proj) (:gravity env) (:wind env))
+        new-c (write-pixel c (int (:x position)) (int (- (:height c) (:y position))) (color 1 0 0))]
     (prn (:x position) (:y position))
-    {:position position :velocity velocity}))
+    {:position position :velocity velocity :canvas new-c}))
 
-(def p {:position (point-tuple 0 1 0) :velocity (vector-tuple 1 3 0)})
+(def p {:position (point-tuple 0 1 0) :velocity (vector-tuple 5 4.75 0) :canvas (canvas 900 550)})
 (def e {:gravity (vector-tuple 0 -0.1 0) :wind (vector-tuple -0.01 0 0)})
 
 (defn next-tick []
   (def p (tick e p)))
+
+(defn get-picture []
+  (while (>= (:y (:position p)) 1)
+    (next-tick))
+  (spit "test.ppm" (canvas->ppm (:canvas p))))
