@@ -1,6 +1,7 @@
 (ns ray-tracer-challenge-clj.tuple-test
   (:require  [clojure.test :refer :all]
              [ray-tracer-challenge-clj.tuple :refer :all]
+             [ray-tracer-challenge-clj.string-formatting :refer :all]
              [clojure.string :as str]))
 
 (defn apply-to-n-lines [f n string]
@@ -135,10 +136,10 @@
 (defn last-n-lines [n string]
   (apply-to-n-lines take-last n string))
 
-(deftest canvas-to-ppm-test
+(deftest canvas->ppm-test
   (testing "header"
     (let [c (canvas 5 3)
-          ppm (canvas-to-ppm c)]
+          ppm (canvas->ppm c)]
       (is (= (multi-line-string "P3" "5 3" "255")
              (first-n-lines 3 ppm)))))
 
@@ -151,7 +152,7 @@
                      (write-pixel 0 0 c1)
                      (write-pixel 2 1 c2)
                      (write-pixel 4 2 c3)
-                     canvas-to-ppm)]
+                     canvas->ppm)]
       (is (= (multi-line-string
               "255 0 0 0 0 0 0 0 0 0 0 0 0 0 0"
               "0 0 0 0 0 0 0 128 0 0 0 0 0 0 0"
@@ -160,13 +161,17 @@
 
   (testing "splitting long lines"
     (let [c (canvas 10, 2 (color 1 0.8 0.6))
-          ppm (canvas-to-ppm c)]
+          ppm (canvas->ppm c)]
       (is (= (multi-line-string
               "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204"
               "153 255 204 153 255 204 153 255 204 153 255 204 153"
               "255 204 153 255 204 153 255 204 153 255 204 153 255 204 153 255 204"
               "153 255 204 153 255 204 153 255 204 153 255 204 153")
-             (last-n-lines 4 ppm))))))
+             (last-n-lines 4 ppm)))))
+
+  (testing "ending with a newline"
+    (let [result (canvas->ppm (canvas 5 3))]
+      (is (= \newline (last result))))))
 
 (deftest color->str-test
   (is (= "0 128 0" (color->str (color 0 0.5 0))))
@@ -174,9 +179,9 @@
   (testing "clamping to 0"
     (is (= "0 0 0" (color->str (color -0.5 0 0))))))
 
-(deftest write-line-test
+(deftest pixels->str-test
   (is (= "0 0 0 255 255 255"
-         (write-line [(color 0 0 0) (color 1 1 1)]))))
+         (pixels->str [(color 0 0 0) (color 1 1 1)]))))
 
 (deftest should-include?-test
   (let [include? (partial should-include? 5)]

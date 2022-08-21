@@ -1,10 +1,10 @@
 (ns ray-tracer-challenge-clj.tuple
   (:require
    [clojure.math :as math]
-   [clojure.string :as str]))
-
-(defn multi-line-string [& strings]
-  (str/join "\n" strings))
+   [clojure.string :as str]
+   [ray-tracer-challenge-clj.string-formatting
+    :refer
+    [format-body multi-line-string]]))
 
 (def sum #(reduce + %))
 
@@ -102,7 +102,7 @@
 (defn pixel-at [canvas x y]
   (get-in canvas [:rows y x]))
 
-(defn write-line [line]
+(defn pixels->str [line]
   (str/join " " (map color->str line)))
 
 (defn ppm-header [canvas]
@@ -110,39 +110,11 @@
                      (str (:width canvas) " " (:height canvas))
                      "255"))
 
-(defn should-include? [length current-result candidate]
-  (<=
-   (+ (count current-result) (count candidate) 1)
-   length))
-
-(defn merge-word [length lines candidate]
-  (let [last-word (last lines)]
-    (if (should-include? length last-word candidate)
-      (conj (butlast lines) (str last-word " " candidate))
-      (conj lines candidate))))
-
-(defn format-line [length words]
-  (reduce
-     (fn [result current-word]
-       (if (should-include? length (last result) current-word)
-         (conj (vec (butlast result)) (str (last result) " " current-word))
-         (conj result current-word)))
-     [(first words)]
-     (rest words)))
-
-(defn format-body [length string]
-  (apply multi-line-string
-         (reduce (fn [result line]
-             (if (<= (count line) length)
-               (conj result line)
-               (concat result (format-line length (str/split line #"\s")))))
-           []
-           (str/split-lines string))))
-
-(defn canvas-to-ppm [canvas]
+(defn canvas->ppm [canvas]
   (let [header (ppm-header canvas)
         body (->> canvas
                   :rows
-                  (map write-line)
-                  (apply multi-line-string))]
-    (multi-line-string header (format-body 70 body))))
+                  (map pixels->str)
+                  (apply multi-line-string)
+                  (format-body 70))]
+    (str (multi-line-string header body) "\n")))
